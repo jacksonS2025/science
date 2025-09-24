@@ -1,0 +1,275 @@
+<html lang="en">
+
+<head>
+    <title>Do you know your elements?</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=SUSE+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+        body {
+            background-color: white;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: "SUSE Mono", sans-serif;
+        }
+
+        .gameTitle, .questionTitle {
+            color: black;
+            font-size: 3em;
+        }
+    </style>
+
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .gameTitle {
+            
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        button {
+            /* Variables */
+            --button_radius: 0.75em;
+            --button_color: #e8e8e8;
+            --button_outline_color: #000000;
+            font-size: 17px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            border-radius: var(--button_radius);
+            background: var(--button_outline_color);
+            min-width: 100px;
+        }
+
+        .button_top {
+            display: block;
+            box-sizing: border-box;
+            border: 2px solid var(--button_outline_color);
+            border-radius: var(--button_radius);
+            padding: 0.75em 1.5em;
+            background: var(--button_color);
+            color: var(--button_outline_color);
+            transform: translateY(-0.2em);
+            transition: transform 0.1s ease;
+        }
+
+        button:hover .button_top {
+            /* Pull the button upwards when hovered */
+            transform: translateY(-0.33em);
+        }
+
+        button:active .button_top {
+            /* Push the button downwards when pressed */
+            transform: translateY(0);
+        }
+        
+        .titleContainer, .questionContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5em;
+            transition: transform ease 1s;
+        }
+
+        .endTitle {
+            position: fixed;
+            transform: translate(-100vw, -100vh);
+            transition: transform ease 1s;
+            font-size: 3em;
+        }
+
+        .questionContainer {
+            position: fixed;
+            transform: translate(-100vw, -100vh);
+        }
+
+        .answerContainer {
+            display: flex;
+            flex-direction: row;
+            gap: 2em;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="titleContainer" id="titleContainer">
+    <h1 class="gameTitle">Do you know your elements?</h1>
+    <button onclick="startGame()">
+        <span class="button_top">Play</span> 
+    </button>
+    </div>
+</body>
+
+<script>
+
+    let currentQuestion = 0
+    let currentQuestionElement = null
+    let score = 0
+
+    const questions = [
+        {
+            title: "Which element has the chemical symbol 'O'?",
+            answers: [
+            "Osmium",
+            "Gold",
+            "Oxygen",
+            "Oganesson"
+            ],
+            correctAnswer: 2
+        },
+        {
+            title: "What type of element is Helium?",
+            answers: [
+            "Noble gas",
+            "Alkali metal",
+            "Halogen",
+            "Transition metal"
+            ],
+            correctAnswer: 0
+        },
+        {
+            title: "Which of these is an alkali metal?",
+            answers: [
+            "Iron",
+            "Sodium",
+            "Neon",
+            "Carbon"
+            ],
+            correctAnswer: 1
+        },
+        {
+            title: "What is the atomic number of Carbon?",
+            answers: [
+            "15",
+            "12",
+            "8",
+            "6"
+            ],
+            correctAnswer: 3
+        },
+        {
+            title: "Which element is a halogen?",
+            answers: [
+            "Magnesium",
+            "Chlorine",
+            "Argon",
+            "Copper"
+            ],
+            correctAnswer: 1
+        },
+        {
+            title: "Which element is found in Group 2 of the periodic table?",
+            answers: [
+            "Silver",
+            "Nitrogen",
+            "Calcium",
+            "Fluorine"
+            ],
+            correctAnswer: 2
+        }
+    ]
+
+    function startGame() {
+        // moving title and button away
+        const titleContainer = document.getElementById('titleContainer')
+        titleContainer.style.position = 'fixed'
+        titleContainer.style.transform = 'translate(100vw, 100vh)'
+
+        const question = createQuestion(questions[currentQuestion])
+        document.body.appendChild(question)
+        currentQuestionElement = question
+        setTimeout(() => {
+            question.style.transform = 'translate(0vh,0vw)'
+        }, 500)
+        
+    }
+
+    function nextQuestion() {
+        if (currentQuestion < questions.length - 1) {
+            currentQuestion++
+            const newQuestion = createQuestion(questions[currentQuestion])
+            document.body.appendChild(newQuestion)
+            setTimeout(() => {
+                newQuestion.style.transform = 'translate(0vh,0vw)'
+                currentQuestionElement.style.transform = 'translate(100vw, 100vh)'
+                setTimeout(() => {
+                    currentQuestionElement.remove()
+                    currentQuestionElement = newQuestion
+                }, 1000)
+            }, 500)
+        } else {
+            // Game over
+            const gameOverMessage = document.createElement('h1')
+            gameOverMessage.classList.add('endTitle')
+            gameOverMessage.innerText = `Game Over! Your score: ${score} / ${questions.length}`
+            document.body.appendChild(gameOverMessage)
+            setTimeout(() => {
+                gameOverMessage.style.transform = 'translate(0vh,0vw)'
+                currentQuestionElement.style.transform = 'translate(100vw, 100vh)'
+                setTimeout(() => {
+                    currentQuestionElement.remove()
+                    currentQuestionElement = null
+                }, 1000)
+            }, 500)
+        }
+    }
+
+    function createQuestion(question) {
+        const questionContainer = document.createElement("div")
+        const questionTitle = document.createElement("h1")
+        const answerContainer = document.createElement("div")
+        const answerButtons = question.answers?.map((value, index) => {
+            const answerButton = document.createElement('button')
+            const answerText = document.createElement('span')
+            answerButton.onclick = () => {
+                answerQuestion(index, currentQuestion)
+                nextQuestion()
+            }
+            answerText.classList.add('button_top')
+            answerText.innerText = value
+            answerButton.setAttribute('answerId', index)
+
+            answerButton.appendChild(answerText)
+            answerContainer.appendChild(answerButton)
+            return answerButton
+        })
+
+        questionContainer.classList.add('questionContainer')
+
+        questionTitle.innerText = question.title
+        
+        answerContainer.classList.add('answerContainer')
+
+        questionContainer.appendChild(questionTitle)
+        questionContainer.appendChild(answerContainer)
+
+        return questionContainer
+
+    }
+
+    function answerQuestion(answer, questionId) {
+        const question = questions[questionId]
+        if (answer === question.correctAnswer) {
+            score++
+        } else {
+            
+        }
+    }
+</script>
+
+</html>
